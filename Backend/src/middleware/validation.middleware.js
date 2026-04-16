@@ -1,5 +1,5 @@
-import * as AppError from "src/utils/error/index.js";
 import { ZodType } from "zod";
+import * as AppError from "../utils/error/index.js";
 
 export const isValid = (schema) => {
   return (req, res, next) => {

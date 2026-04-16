@@ -1,10 +1,11 @@
-import { UserRepository } from "src/db/user.reposcitory.js";
-import * as AppError from "src/utils/error/index.js";
-import {comparePassword,hashPassword} from "src/utils/hash/index.js";
-import { generateToken, generateRefreshToken } from "src/utils/token/index.js";
-import { generateOTP, generateOTPExpiry } from "src/utils/otp/index.js";
-import { sendMail } from "src/utils/email/index.js";
+
 import { OAuth2Client } from "google-auth-library";
+import { UserRepository } from "../../db/repo/user.reposcitory.js";
+import * as AppError from "../../utils/error/index.js";
+import {comparePassword,hashPassword} from "../../utils/hash/index.js";
+import { generateToken } from "../../utils/token/index.js";
+import { generateOTP, generateOTPExpiry } from "../../utils/otp/index.js";
+import { sendMail } from "../../utils/email/index.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const userRepo = new UserRepository();

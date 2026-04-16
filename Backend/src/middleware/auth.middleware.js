@@ -1,7 +1,7 @@
-import * as AppError from "src/utils/error/index.js";
-import { verifyAccessToken } from "src/utils/token/index.js";
-import { UserRepository } from "src/db/user.reposcitory.js";
+import * as AppError from "../utils/error/index.js";
 import mongoose from "mongoose";
+import { UserRepository } from "../db/repo/user.reposcitory.js";
+import { verifyAccessToken } from "../utils/token/index.js";
 
 const userRepo = new UserRepository();
 

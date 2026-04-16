@@ -1,14 +1,10 @@
-import { Router } from "express";
-import AuthService from "src/module/auth/auth.service.js";
-import { isValid } from "src/middleware/validation.middleware.js";
-import { authMiddleware } from "src/middleware/auth.middleware.js";
-import * as authValidation from "src/module/auth/auth.validation.js";
+import AuthService from "./auth.service.js";
 
-const router = Router();
+class AuthController {
+  register = (req, res, next) => AuthService.register(req, res, next);
+  verifyAccount = (req, res, next) => AuthService.verifyAccount(req, res, next);
+  login = (req, res, next) => AuthService.login(req, res, next);
+  loginWithGoogle = (req, res, next) => AuthService.loginWithGoogle(req, res, next);
+}
 
-router.post("/register", isValid(authValidation.registerSchema), AuthService.register);
-router.post("/login", isValid(authValidation.loginSchema), AuthService.login);
-router.post("/google", isValid(authValidation.googleLoginSchema), AuthService.loginWithGoogle);
-router.post("/verify", isValid(authValidation.verifySchema), AuthService.verifyAccount);
-
-export default router;
+export default new AuthController();

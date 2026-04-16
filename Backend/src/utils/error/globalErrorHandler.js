@@ -1,6 +1,7 @@
-import { verifyRefreshToken, generateToken, generateRefreshToken } from "src/utils/token/index.js";
-import  Token  from "src/db/models/token.model.js"; // افترض عندك موديل Token
-import * as AppError from "src/utils/error/index.js";
+  
+import { verifyRefreshToken, generateToken, generateRefreshToken } from "../token/index.js";
+import  Token  from "../../db/models/token.model.js"; // افترض عندك موديل Token
+import * as AppError from "./index.js";
 
 export const globalErrorHandler = async (err, req, res, next) => {
   try {

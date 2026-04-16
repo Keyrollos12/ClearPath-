@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import { SYS_Role, GENDER, USER_AGENT } from "src/utils/common/enum/index.js";
 import bcrypt from "bcrypt";
-import { sendMail } from "src/utils/email/index.js";
+import { sendMail } from "../../utils/email/index.js";
+import { SYS_Role, GENDER, USER_AGENT } from "../../utils/common/enum/index.js";
 
 export const userSchema = new Schema(
   {

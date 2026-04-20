@@ -46,9 +46,9 @@ export const userSchema = new Schema(
     },
 
     role: {
-      type: Number,
-      enum: Object.values(SYS_Role),
-      default: SYS_Role.user,
+      type: String,
+      enum: ["user", "provider", "admin"],
+      default: "user",
     },
 
     userAgent: {

@@ -9,5 +9,6 @@ router.post("/register", isValid(authValidation.registerSchema), AuthController.
 router.post("/login", isValid(authValidation.loginSchema), AuthController.login);
 router.post("/google", isValid(authValidation.googleLoginSchema), AuthController.loginWithGoogle);
 router.post("/verify", isValid(authValidation.verifySchema), AuthController.verifyAccount);
+router.post("/logout", AuthController.logout);
 
 export default router;

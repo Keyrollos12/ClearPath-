@@ -122,6 +122,17 @@ class AuthService {
             next(err);
         }
     }
+    async logout(req, res, next) {
+    try {
+        
+        return res.status(200).json({
+            message: "Logged out successfully",
+            success: true
+        });
+    } catch (err) {
+        next(err);
+    }
+}
 }
 
 export default new AuthService();

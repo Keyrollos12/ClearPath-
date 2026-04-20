@@ -1,57 +1,77 @@
-import { z } from "zod";
+import Joi from "joi";
 
+/* =========================
+   REGISTER SCHEMA
+========================= */
+export const registerSchema = Joi.object({
+  fullName: Joi.string()
+    .min(3)
+    .max(50)
+    .required()
+    .messages({
+      "string.min": "Full name must be at least 3 characters",
+      "string.max": "Full name must be at most 50 characters",
+      "any.required": "Full name is required",
+    }),
 
-export const registerSchema = z.object({
-  fullName: z
-    .string()
-    .min(3, "Full name must be at least 3 characters")
-    .max(50, "Full name must be at most 50 characters")
-    
-    ,
+  email: Joi.string()
+    .email()
+    .required()
+    .messages({
+      "string.email": "Invalid email format",
+      "any.required": "Email is required",
+    }),
 
-  email: z
-    .string()
-    .email("Invalid email format")
-    .refine(
-      (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
-      "Email format is invalid"
-    ),
+  password: Joi.string()
+    .min(8)
+    .max(30)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+    .required()
+    .messages({
+      "string.min": "Password must be at least 8 characters",
+      "string.max": "Password must be at most 30 characters",
+      "string.pattern.base":
+        "Password must contain uppercase, lowercase, and number",
+      "any.required": "Password is required",
+    }),
 
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(30, "Password must be at most 30 characters")
-    .refine(
-      (val) =>
-        /[A-Z]/.test(val) && // حرف كبير
-        /[a-z]/.test(val) && // حرف صغير
-        /[0-9]/.test(val) && // رقم
-      
-      "Password must contain uppercase, lowercase, number, and special character"
-    ),
+  phoneNumber: Joi.string()
+    .pattern(/^\d{10,15}$/)
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Phone number must contain only digits and be 10-15 digits",
+      "any.required": "Phone number is required",
+    }),
 
-  phoneNumber: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number must be at most 15 digits")
-    .refine(
-      (val) => /^\d{10,15}$/.test(val),
-      "Phone number must contain only digits"
-    ),
-
-  gender: z.enum(["male", "female"], "Gender must be either 'male' or 'female'"),
+  gender: Joi.string()
+    .valid("male", "female")
+    .required()
+    .messages({
+      "any.only": "Gender must be either 'male' or 'female'",
+      "any.required": "Gender is required",
+    }),
 });
-export const loginSchema = z.object({
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+
+/* =========================
+   LOGIN SCHEMA
+========================= */
+export const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
 });
 
-
-export const verifySchema = z.object({
-  email: z.string().email("Invalid email format"),
-  otp: z.string().length(6, "OTP must be 6 characters"),
+/* =========================
+   VERIFY SCHEMA
+========================= */
+export const verifySchema = Joi.object({
+  email: Joi.string().email().required(),
+  otp: Joi.string().length(6).required(),
 });
 
-export const googleLoginSchema = z.object({
-  idToken: z.string().min(10, "Invalid Google token"),
+/* =========================
+   GOOGLE LOGIN
+========================= */
+export const googleLoginSchema = Joi.object({
+  idToken: Joi.string().min(10).required(),
 });

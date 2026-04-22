@@ -75,3 +75,30 @@ export const verifySchema = Joi.object({
 export const googleLoginSchema = Joi.object({
   idToken: Joi.string().min(10).required(),
 });
+
+/* =========================
+   FORGOT PASSWORD
+========================= */
+export const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+/* =========================
+   RESET PASSWORD
+========================= */
+export const resetPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+  otp: Joi.string().length(6).required(),
+  newPassword: Joi.string()
+    .min(8)
+    .max(30)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+    .required()
+    .messages({
+      "string.min": "Password must be at least 8 characters",
+      "string.max": "Password must be at most 30 characters",
+      "string.pattern.base":
+        "Password must contain uppercase, lowercase, and number",
+      "any.required": "Password is required",
+    }),
+});

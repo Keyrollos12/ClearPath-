@@ -50,6 +50,10 @@ export const userSchema = new Schema(
       enum: ["user", "provider", "admin"],
       default: "user",
     },
+    tokenVersion: {
+      type: Number,
+      default: 0,
+    },
 
     userAgent: {
       type: Number,

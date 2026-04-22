@@ -54,4 +54,13 @@ export const activityQuerySchema = Joi.object({
   provider: objectId,
   minPrice: Joi.number(),
   maxPrice: Joi.number(),
-});
+}).custom((value, helpers) => {
+  if (
+    value.minPrice !== undefined &&
+    value.maxPrice !== undefined &&
+    value.minPrice > value.maxPrice
+  ) {
+    return helpers.error("any.invalid");
+  }
+  return value;
+}, "price range validation");

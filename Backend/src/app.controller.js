@@ -5,6 +5,7 @@ import activityRouter from "./module/activity/activity.router.js";
 import customTripRouter from "./module/customTrip/customTrip.router.js";
 import experienceRouter from "./module/experience/experience.router.js";
 import userRouter from "./module/user/user.router.js";
+import wishlistRouter from "./module/wishlist/wishlist.router.js";
 
     const bootstrap = async (app, express) => {
     
@@ -15,7 +16,7 @@ import userRouter from "./module/user/user.router.js";
     app.use("/customTrip", customTripRouter);
     app.use("/experience", experienceRouter);
     app.use("/user", userRouter);
-    app
+    app.use("/wishlist", wishlistRouter);
     app.use(globalErrorHandler);
 
     }

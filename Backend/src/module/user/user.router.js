@@ -51,7 +51,7 @@ router.delete(
 router.get(
   '/admin/all',
   authMiddleware,
-  allowTo('Admin'),
+  allowTo('admin'),
   userController.getAllUsers
 );
 
@@ -59,7 +59,7 @@ router.get(
 router.delete(
   '/admin/delete/:userId',
   authMiddleware,
-  allowTo('Admin'),
+  allowTo('admin'),
   isValid(userValidation.userIdSchema),
   userController.adminDeleteUser
 );

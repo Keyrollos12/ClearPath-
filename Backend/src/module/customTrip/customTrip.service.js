@@ -2,6 +2,43 @@ import { CustomTrip } from "../../db/models/customtrip.model.js";
 import { Experience } from "../../db/models/experience.model.js";
 
 class CustomTripService {
+  toCustomDayFromExperience(day) {
+    return {
+      day_number: day.day_number,
+      isRemoved: false,
+      activities: (day.activities || []).map((act) => ({
+        activity: act.activity,
+        provider: act.provider,
+        price: act.price,
+        isAdded: false,
+        isRemoved: false,
+      })),
+    };
+  }
+
+  getActiveDayActivities(day) {
+    return (day.activities || []).filter((act) => !act.isRemoved);
+  }
+
+  getActiveExtraActivities(trip) {
+    return (trip.added_activities || []).filter((act) => !act.isRemoved);
+  }
+
+  getBookingTypeByDays(daysCount) {
+    return daysCount > 1 ? "Package" : "Trip";
+  }
+
+  hasCustomChanges(trip) {
+    const hasDayRemoved = (trip.customized_itinerary || []).some((day) => day.isRemoved);
+    const hasDayActivityChanges = (trip.customized_itinerary || []).some((day) =>
+      (day.activities || []).some((act) => act.isAdded || act.isRemoved)
+    );
+    const hasExtraChanges = (trip.added_activities || []).some(
+      (act) => act.isAdded || act.isRemoved
+    );
+
+    return hasDayRemoved || hasDayActivityChanges || hasExtraChanges;
+  }
 
   // =========================
   // ➕ CREATE FROM EXPERIENCE
@@ -22,8 +59,11 @@ class CustomTripService {
     return await CustomTrip.create({
       user: userId,
       experience: experienceId,
-      itinerary: exp.itinerary,
-      extra_activities: [],
+      customized_itinerary: (exp.itinerary || []).map((day) =>
+        this.toCustomDayFromExperience(day)
+      ),
+      added_activities: [],
+      total_price: exp.base_price || 0,
     });
   }
 
@@ -33,8 +73,8 @@ class CustomTripService {
   async getUserTrips(userId) {
     return await CustomTrip.find({ user: userId })
       .populate("experience")
-      .populate("itinerary.activities.activity")
-      .populate("extra_activities.activity");
+      .populate("customized_itinerary.activities.activity")
+      .populate("added_activities.activity");
   }
 
   // =========================
@@ -43,8 +83,8 @@ class CustomTripService {
   async getOne(id) {
     return await CustomTrip.findById(id)
       .populate("experience")
-      .populate("itinerary.activities.activity")
-      .populate("extra_activities.activity");
+      .populate("customized_itinerary.activities.activity")
+      .populate("added_activities.activity");
   }
 
   // =========================
@@ -59,10 +99,10 @@ class CustomTripService {
       experience: experienceId,
     })
       .populate("experience")
-      .populate("itinerary.activities.activity")
-      .populate("extra_activities.activity");
+      .populate("customized_itinerary.activities.activity")
+      .populate("added_activities.activity");
 
-    // 🔵 NO CUSTOMIZATION → return experience
+    // 🔵 NO CUSTOM TRIP DOC → return experience
     if (!custom) {
       const exp = await Experience.findById(experienceId)
         .populate("destination")
@@ -70,9 +110,35 @@ class CustomTripService {
 
       if (!exp) throw new Error("Experience not found");
 
+      const daysCount = (exp.itinerary || []).length;
+      const bookingType = this.getBookingTypeByDays(daysCount);
+
       return {
         source: "experience",
-        data: exp,
+        data: {
+          ...exp.toObject(),
+          booking_type: bookingType,
+        },
+      };
+    }
+
+    // لو فيه CustomTrip لكن بدون أي تعديل حقيقي، نرجّع Experience كما هي للحجز
+    if (!this.hasCustomChanges(custom)) {
+      const exp = await Experience.findById(experienceId)
+        .populate("destination")
+        .populate("itinerary.activities.activity");
+
+      if (!exp) throw new Error("Experience not found");
+
+      const daysCount = (exp.itinerary || []).length;
+      const bookingType = this.getBookingTypeByDays(daysCount);
+
+      return {
+        source: "experience",
+        data: {
+          ...exp.toObject(),
+          booking_type: bookingType,
+        },
       };
     }
 
@@ -81,14 +147,13 @@ class CustomTripService {
 
     const finalItinerary = [];
 
-    custom.itinerary.forEach(day => {
-
-      if (day.status === "removed") return;
+    custom.customized_itinerary.forEach(day => {
+      if (day.isRemoved) return;
 
       const activities = [];
 
-      day.activities.forEach(act => {
-        if (act.status === "active") {
+      (day.activities || []).forEach(act => {
+        if (!act.isRemoved) {
           activities.push(act);
           total += act.price;
         }
@@ -102,12 +167,14 @@ class CustomTripService {
 
     const extras = [];
 
-    custom.extra_activities.forEach(act => {
-      if (act.status === "active") {
+    (custom.added_activities || []).forEach(act => {
+      if (!act.isRemoved) {
         extras.push(act);
         total += act.price;
       }
     });
+
+    const bookingType = this.getBookingTypeByDays(finalItinerary.length);
 
     return {
       source: "customTrip",
@@ -118,6 +185,7 @@ class CustomTripService {
         itinerary: finalItinerary,
         extra_activities: extras,
         total_price: total,
+        booking_type: bookingType,
       },
     };
   }
@@ -130,20 +198,23 @@ class CustomTripService {
 
     if (!trip) throw new Error("Trip not found");
 
-    let day = trip.itinerary.find(d => d.day_number === dayNumber);
+    let day = trip.customized_itinerary.find((d) => d.day_number === dayNumber);
 
     if (!day) {
       day = {
         day_number: dayNumber,
         activities: [],
-        status: "active",
+        isRemoved: false,
       };
-      trip.itinerary.push(day);
+      trip.customized_itinerary.push(day);
     }
 
     day.activities.push({
-      ...activityObj,
-      status: "active",
+      activity: activityObj.activity,
+      provider: activityObj.provider,
+      price: activityObj.price,
+      isAdded: true,
+      isRemoved: false,
     });
 
     await trip.save();
@@ -158,7 +229,7 @@ class CustomTripService {
 
     if (!trip) throw new Error("Trip not found");
 
-    const day = trip.itinerary.find(d => d.day_number === dayNumber);
+    const day = trip.customized_itinerary.find((d) => d.day_number === dayNumber);
 
     if (!day) return trip;
 
@@ -167,7 +238,7 @@ class CustomTripService {
     );
 
     if (activity) {
-      activity.status = "removed";
+      activity.isRemoved = true;
     }
 
     await trip.save();
@@ -182,10 +253,10 @@ class CustomTripService {
 
     if (!trip) throw new Error("Trip not found");
 
-    const day = trip.itinerary.find(d => d.day_number === dayNumber);
+    const day = trip.customized_itinerary.find((d) => d.day_number === dayNumber);
 
     if (day) {
-      day.status = "removed";
+      day.isRemoved = true;
     }
 
     await trip.save();
@@ -200,9 +271,12 @@ class CustomTripService {
 
     if (!trip) throw new Error("Trip not found");
 
-    trip.extra_activities.push({
-      ...activityObj,
-      status: "active",
+    trip.added_activities.push({
+      activity: activityObj.activity,
+      provider: activityObj.provider,
+      price: activityObj.price,
+      isAdded: true,
+      isRemoved: false,
     });
 
     await trip.save();
@@ -217,12 +291,12 @@ class CustomTripService {
 
     if (!trip) throw new Error("Trip not found");
 
-    const act = trip.extra_activities.find(
+    const act = trip.added_activities.find(
       a => a.activity.toString() === activityId.toString()
     );
 
     if (act) {
-      act.status = "removed";
+      act.isRemoved = true;
     }
 
     await trip.save();

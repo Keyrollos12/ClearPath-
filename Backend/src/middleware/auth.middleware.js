@@ -16,20 +16,19 @@ export const authMiddleware = async (req, res, next) => {
       token = token.split(" ")[1];
 
     const payload = verifyAccessToken(token);
-
-    console.log("PAYLOAD:", payload); // 👈 debug مهم
-
-  const user = await userRepo.getOne({
-  _id: payload.payload.id,
-});
+    const user = await userRepo.getOne({ _id: payload.id });
 
     if (!user) {
       return next(
         new AppError.forbiddenException("Unauthorized: user not found")
       );
     }
+    if ((payload.tv ?? 0) !== (user.tokenVersion ?? 0)) {
+      return next(new AppError.forbiddenException("Token is no longer valid"));
+    }
 
     req.user = user;
+    req.tokenPayload = payload;
     next();
   } catch (err) {
     next(err);

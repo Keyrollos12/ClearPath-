@@ -1,6 +1,8 @@
 import { Router } from "express";
 import controller from "./customTrip.controller.js";
 import { authMiddleware } from "../../middleware/auth.middleware.js";
+import { isValid } from "../../middleware/validation.middleware.js";
+import * as customTripValidation from "./customTrip.validation.js";
 
 const router = Router();
 
@@ -13,6 +15,7 @@ const router = Router();
 router.post(
   "/",
   authMiddleware,
+  isValid(customTripValidation.createCustomTripSchema),
   controller.create
 );
 
@@ -27,6 +30,7 @@ router.get(
 router.get(
   "/:id",
   authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
   controller.getOne
 );
 
@@ -34,6 +38,7 @@ router.get(
 router.get(
   "/view/:experienceId",
   authMiddleware,
+  isValid(customTripValidation.experienceIdSchema, 'params'),
   controller.getFinalTrip
 );
 
@@ -45,6 +50,8 @@ router.get(
 router.patch(
   "/:id/add-activity",
   authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.addActivitySchema),
   controller.addActivity
 );
 
@@ -52,6 +59,8 @@ router.patch(
 router.patch(
   "/:id/remove-activity",
   authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.removeActivitySchema),
   controller.removeActivity
 );
 
@@ -59,6 +68,8 @@ router.patch(
 router.patch(
   "/:id/remove-day",
   authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.removeDaySchema),
   controller.removeDay
 );
 
@@ -66,6 +77,8 @@ router.patch(
 router.patch(
   "/:id/add-extra",
   authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.addExtraSchema),
   controller.addExtraActivity
 );
 
@@ -73,6 +86,8 @@ router.patch(
 router.patch(
   "/:id/remove-extra",
   authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.removeExtraSchema),
   controller.removeExtraActivity
 );
 

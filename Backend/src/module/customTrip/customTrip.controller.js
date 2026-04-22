@@ -122,6 +122,42 @@ class CustomTripController {
     }
   };
 
+  // Add day
+  addDay = async (req, res, next) => {
+    try {
+      const data = await CustomTripService.addDay(
+        req.params.id,
+        req.body.day_number,
+        req.body.activities
+      );
+
+      res.status(200).json({
+        message: "Day added successfully",
+        data,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Add day
+  addDay = async (req, res, next) => {
+    try {
+      const data = await CustomTripService.addDay(
+        req.params.id,
+        req.body.day_number,
+        req.body.activities
+      );
+
+      res.status(200).json({
+        message: "Day added successfully",
+        data,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   // Add extra activity
   addExtraActivity = async (req, res, next) => {
     try {

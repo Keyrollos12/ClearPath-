@@ -2,23 +2,38 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  customTrip: { type: mongoose.Schema.Types.ObjectId, ref: "CustomTrip", required: true },
+  // يمكن الحجز على Experience مباشرة أو على CustomTrip معدل
+  experience: { type: mongoose.Schema.Types.ObjectId, ref: "Experience" },
+  customTrip: { type: mongoose.Schema.Types.ObjectId, ref: "CustomTrip" },
   booking_date: { type: Date, default: Date.now },
-  total_amount: { type: Number, required: true }, // هنا هيتحسب
-  status: { type: String, enum: ["Confirmed","Pending","Cancelled"], default: "Pending" }
+  travel_date: { type: Date },
+  total_amount: { type: Number },
+  status: { type: String, enum: ["Confirmed", "Pending", "Cancelled"], default: "Pending" },
+  booking_type: { type: String, enum: ["Trip", "Package"] }
 }, { timestamps: true });
+
+// Validation: لازم يكون في experience أو customTrip على الأقل
+bookingSchema.pre("validate", function(next) {
+  if (!this.experience && !this.customTrip) {
+    return next(new Error("Booking must have either an experience or a customTrip"));
+  }
+  next();
+});
 
 // Middleware: قبل الحفظ، نحسب السعر
 bookingSchema.pre("save", async function(next) {
-  if (!this.total_amount) {
-    // جلب الـ CustomTrip مع الـ Experience
-    const customTrip = await mongoose.model("CustomTrip").findById(this.customTrip)
-      .populate("experience");
+  if (this.isModified("total_amount") && this.total_amount > 0) {
+    return next();
+  }
 
+  if (this.customTrip) {
+    const customTrip = await mongoose.model("CustomTrip").findById(this.customTrip);
     if (!customTrip) return next(new Error("CustomTrip not found"));
-
-    // لو في تعديل، نستخدم السعر المحسوب
-    this.total_amount = customTrip.total_price || customTrip.experience.base_price;
+    this.total_amount = customTrip.total_price || 0;
+  } else if (this.experience) {
+    const exp = await mongoose.model("Experience").findById(this.experience);
+    if (!exp) return next(new Error("Experience not found"));
+    this.total_amount = exp.calculatedPrice || exp.base_price || 0;
   }
 
   next();

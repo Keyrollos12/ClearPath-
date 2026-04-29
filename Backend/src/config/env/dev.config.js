@@ -13,6 +13,11 @@ export const devConfig = {
     PASSWORD: process.env.PASSWORD,
     JWT_SECRET: process.env.JWT_SECRET,
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
+    PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
+    PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
+    PAYPAL_MODE: process.env.PAYPAL_MODE || 'sandbox',
+    PAYPAL_WEBHOOK_ID: process.env.PAYPAL_WEBHOOK_ID,
+    CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
 };
 
 

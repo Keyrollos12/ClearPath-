@@ -1,0 +1,42 @@
+{
+  "id": "clearpath-test-env",
+  "name": "ClearPath Test Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "enabled": true
+    },
+    {
+      "key": "userToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZjEzNDc5OWJkZTMwYzA3ZTVhYjVmZiIsInJvbGUiOiJhZG1pbiIsInR2IjowLCJpYXQiOjE3Nzc0MTU2ODcsImV4cCI6MTc3NzUwMjA4N30.bjma47UpMqy7sPgHPYsjaCj1Mdfeb50BOl39TkgY4tE",
+      "enabled": true
+    },
+    {
+      "key": "customTripId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "experienceId",
+      "value": "69f135e79bde30c07e5ab61c",
+      "enabled": true
+    },
+    {
+      "key": "activityId",
+      "value": "69f135dc9bde30c07e5ab618",
+      "enabled": true
+    },
+    {
+      "key": "providerId",
+      "value": "69f135cc9bde30c07e5ab611",
+      "enabled": true
+    },
+    {
+      "key": "bookingId",
+      "value": "",
+      "enabled": true
+    }
+  ]
+}
+

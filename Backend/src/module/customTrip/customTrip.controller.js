@@ -69,6 +69,25 @@ class CustomTripController {
     }
   };
 
+  // PREVIEW TRIP WITH ALL CHANGES (Builder View)
+  preview = async (req, res, next) => {
+    try {
+      const data = await CustomTripService.getPreview(req.params.id);
+
+      if (!data) {
+        return res.status(404).json({
+          message: "Trip not found",
+        });
+      }
+
+      res.status(200).json({
+        data,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   // Add activity
   addActivity = async (req, res, next) => {
     try {
@@ -128,25 +147,7 @@ class CustomTripController {
       const data = await CustomTripService.addDay(
         req.params.id,
         req.body.day_number,
-        req.body.activities
-      );
-
-      res.status(200).json({
-        message: "Day added successfully",
-        data,
-      });
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  // Add day
-  addDay = async (req, res, next) => {
-    try {
-      const data = await CustomTripService.addDay(
-        req.params.id,
-        req.body.day_number,
-        req.body.activities
+        req.body.activities || []
       );
 
       res.status(200).json({
@@ -185,6 +186,71 @@ class CustomTripController {
 
       res.status(200).json({
         message: "Extra activity removed successfully",
+        data,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Delete custom trip
+  delete = async (req, res, next) => {
+    try {
+      await CustomTripService.delete(req.params.id, req.user._id);
+
+      res.status(200).json({
+        message: "Custom trip deleted successfully",
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Restore day
+  restoreDay = async (req, res, next) => {
+    try {
+      const data = await CustomTripService.restoreDay(
+        req.params.id,
+        req.body.day_number
+      );
+
+      res.status(200).json({
+        message: "Day restored successfully",
+        data,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Restore activity
+  restoreActivity = async (req, res, next) => {
+    try {
+      const data = await CustomTripService.restoreActivity(
+        req.params.id,
+        req.body.day_number,
+        req.body.activityId
+      );
+
+      res.status(200).json({
+        message: "Activity restored successfully",
+        data,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // Restore extra activity
+  restoreExtraActivity = async (req, res, next) => {
+    try {
+      const data = await CustomTripService.restoreExtraActivity(
+        req.params.id,
+        req.body.activityId
+      );
+
+      res.status(200).json({
+        message: "Extra activity restored successfully",
         data,
       });
     } catch (err) {

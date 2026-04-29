@@ -2,25 +2,58 @@ import Joi from "joi";
 
 const objectId = Joi.string().length(24).hex();
 
+// Accept ObjectId, string name, or full object
+const destinationField = Joi.alternatives().try(
+  objectId,
+  Joi.string().min(1),
+  Joi.object({
+    name: Joi.string().required(),
+    location: Joi.string().optional(),
+    city: Joi.string().optional(),
+    description: Joi.string().optional()
+  })
+);
+
+const activityField = Joi.alternatives().try(
+  objectId,
+  Joi.string().min(1),
+  Joi.object({
+    name: Joi.string().required(),
+    type: Joi.string().valid("tour", "entertainment", "hiking", "hotel", "food").optional(),
+    price: Joi.number().positive().optional()
+  })
+);
+
+const providerField = Joi.alternatives().try(
+  objectId,
+  Joi.string().min(1),
+  Joi.object({
+    name: Joi.string().required(),
+    type: Joi.string().valid("Guide", "Transport", "Equipment", "TourOperator").optional(),
+    email: Joi.string().email().optional(),
+    phone: Joi.string().optional()
+  })
+);
+
 export const createExperienceSchema = Joi.object({
-  name: Joi.string().min(2).required(),
-  type: Joi.string().valid("Trip", "Package").required(),
+  name: Joi.string().min(2).optional(),
+  type: Joi.string().optional(),
   description: Joi.string().optional(),
-  duration_days: Joi.number().integer().positive().required(),
-  base_price: Joi.number().positive().required(),
-  destination: objectId.required(),
+  duration_days: Joi.number().integer().positive().optional(),
+  base_price: Joi.number().positive().optional(),
+  destination: destinationField.optional(),
   capacity: Joi.number().integer().positive().optional(),
   availableDates: Joi.array().items(Joi.object({
-    date: Joi.date().required(),
-    availableSeats: Joi.number().integer().positive().required()
+    date: Joi.date().optional(),
+    availableSeats: Joi.number().integer().positive().optional()
   })).optional(),
   itinerary: Joi.array().items(Joi.object({
-    day_number: Joi.number().integer().positive().required(),
+    day_number: Joi.number().integer().positive().optional(),
     activities: Joi.array().items(Joi.object({
-      activity: objectId.required(),
-      provider: objectId.optional(),
-      price: Joi.number().positive().required()
-    })).required()
+      activity: activityField.optional(),
+      provider: providerField.optional(),
+      price: Joi.number().positive().optional()
+    })).optional()
   })).optional()
 });
 
@@ -30,7 +63,7 @@ export const updateExperienceSchema = Joi.object({
   description: Joi.string(),
   duration_days: Joi.number().integer().positive(),
   base_price: Joi.number().positive(),
-  destination: objectId,
+  destination: destinationField,
   capacity: Joi.number().integer().positive(),
   availableDates: Joi.array().items(Joi.object({
     date: Joi.date(),
@@ -39,8 +72,8 @@ export const updateExperienceSchema = Joi.object({
   itinerary: Joi.array().items(Joi.object({
     day_number: Joi.number().integer().positive(),
     activities: Joi.array().items(Joi.object({
-      activity: objectId,
-      provider: objectId,
+      activity: activityField,
+      provider: providerField,
       price: Joi.number().positive()
     }))
   }))

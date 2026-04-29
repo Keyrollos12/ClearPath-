@@ -16,11 +16,12 @@ function freePortAndStart(port) {
                 console.log(`Port ${port} is in use by PID ${pid}. Killing process...`);
                 exec(`taskkill /PID ${pid} /F`, (killErr) => {
                     if (killErr) {
-                        console.error("Failed to kill process:", killErr);
+                        console.error("Failed to kill process:", killErr.message);
                     } else {
-                        console.log(`Process ${pid} killed. Starting server...`);
-                        startServer(port);
+                        console.log(`Process ${pid} killed.`);
                     }
+                    // Start server regardless of kill success/failure
+                    startServer(port);
                 });
             } else {
                 console.log(`No valid PID found for port ${port}, starting server...`);

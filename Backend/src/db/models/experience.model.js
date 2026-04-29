@@ -5,7 +5,6 @@ const activityItemSchema = new mongoose.Schema(
     activity: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Activity",
-      required: true,
     },
 
     provider: {
@@ -15,7 +14,6 @@ const activityItemSchema = new mongoose.Schema(
 
     price: {
       type: Number,
-      required: true,
     },
   },
   { _id: false }
@@ -25,7 +23,6 @@ const itineraryDaySchema = new mongoose.Schema(
   {
     day_number: {
       type: Number,
-      required: true,
     },
 
     activities: [activityItemSchema],
@@ -37,14 +34,11 @@ const experienceSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
       trim: true,
     },
 
     type: {
       type: String,
-      enum: ["Trip", "Package"],
-      required: true,
     },
 
     description: {
@@ -54,18 +48,15 @@ const experienceSchema = new mongoose.Schema(
 
     duration_days: {
       type: Number,
-      required: true,
     },
 
     base_price: {
       type: Number,
-      required: true,
     },
 
     destination: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Destination",
-      required: true,
     },
 
     // 💣 جديد (للسيرش والحجز)
@@ -95,7 +86,7 @@ const experienceSchema = new mongoose.Schema(
 // calculatedPrice (محسن)
 
 experienceSchema.virtual("calculatedPrice").get(function () {
-  let total = this.base_price;
+  let total = this.base_price || 0;
 
   if (!this.itinerary) return total;
 

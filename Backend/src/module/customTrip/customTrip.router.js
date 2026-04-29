@@ -42,6 +42,14 @@ router.get(
   controller.getFinalTrip
 );
 
+// PREVIEW BUILDER (shows ALL changes: removed, added, extra activities)
+router.get(
+  "/preview/:id",
+  authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  controller.preview
+);
+
 // =========================
 //  MODIFY TRIP
 // =========================
@@ -62,6 +70,15 @@ router.patch(
   isValid(customTripValidation.idSchema, 'params'),
   isValid(customTripValidation.removeActivitySchema),
   controller.removeActivity
+);
+
+//  Add day
+router.patch(
+  "/:id/add-day",
+  authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.addDaySchema),
+  controller.addDay
 );
 
 //  Remove day
@@ -89,6 +106,45 @@ router.patch(
   isValid(customTripValidation.idSchema, 'params'),
   isValid(customTripValidation.removeExtraSchema),
   controller.removeExtraActivity
+);
+
+// =========================
+//  DELETE & RESTORE
+// =========================
+
+// Delete custom trip
+router.delete(
+  "/:id",
+  authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  controller.delete
+);
+
+// Restore day
+router.patch(
+  "/:id/restore-day",
+  authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.removeDaySchema),
+  controller.restoreDay
+);
+
+// Restore activity
+router.patch(
+  "/:id/restore-activity",
+  authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.removeActivitySchema),
+  controller.restoreActivity
+);
+
+// Restore extra activity
+router.patch(
+  "/:id/restore-extra",
+  authMiddleware,
+  isValid(customTripValidation.idSchema, 'params'),
+  isValid(customTripValidation.removeExtraSchema),
+  controller.restoreExtraActivity
 );
 
 export default router;

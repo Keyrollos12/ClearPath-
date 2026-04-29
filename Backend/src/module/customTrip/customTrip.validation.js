@@ -11,20 +11,22 @@ export const idSchema = Joi.object({
 });
 
 export const addActivitySchema = Joi.object({
-  activityId: objectId.required(),
-  day: Joi.number().integer().positive().required()
+  day_number: Joi.number().integer().positive().required(),
+  activity: objectId.required(),
+  provider: objectId.required(),
+  price: Joi.number().positive().required()
 });
 
 export const removeActivitySchema = Joi.object({
   activityId: objectId.required(),
-  day: Joi.number().integer().positive().required()
+  day_number: Joi.number().integer().positive().required()
 });
 
 export const addDaySchema = Joi.object({
   day_number: Joi.number().integer().positive().required(),
   activities: Joi.array().items(Joi.object({
     activity: objectId.required(),
-    provider: objectId.optional(),
+    provider: objectId.required(),
     price: Joi.number().positive().required()
   })).optional()
 });
@@ -34,15 +36,17 @@ export const removeDaySchema = Joi.object({
 });
 
 export const addExtraSchema = Joi.object({
-  name: Joi.string().required(),
+  activity: objectId.required(),
+  provider: objectId.required(),
   price: Joi.number().positive().required(),
   day: Joi.number().integer().positive().optional()
 });
 
 export const removeExtraSchema = Joi.object({
-  extraId: objectId.required()
+  activityId: objectId.required()
 });
 
 export const experienceIdSchema = Joi.object({
   experienceId: objectId.required(),
 });
+

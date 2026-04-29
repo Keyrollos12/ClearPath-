@@ -9,6 +9,7 @@ const customActivitySchema = new mongoose.Schema({
   isRemoved: { type: Boolean, default: false }  
 }, { _id: false });
 
+
 // كل يوم مخصص في الرحلة
 const customDaySchema = new mongoose.Schema({
   day_number: { type: Number, required: true },
@@ -16,10 +17,12 @@ const customDaySchema = new mongoose.Schema({
   isRemoved: { type: Boolean, default: false }  
 }, { _id: false });
 
+
 // الرحلة المخصصة
 const customTripSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   experience: { type: mongoose.Schema.Types.ObjectId, ref: "Experience", required: true },
+  base_price: { type: Number, default: 0 },  // سعر الـ Experience الأساسي
   customized_itinerary: [customDaySchema],    // الأيام المعدلة
   added_activities: [customActivitySchema],  // أنشطة إضافية خارج الأيام
   total_price: { type: Number, default: 0 }
@@ -27,7 +30,7 @@ const customTripSchema = new mongoose.Schema({
 
 // ===== Middleware: حساب السعر الكلي تلقائي بعد أي تعديل =====
 customTripSchema.pre("save", function(next) {
-  let total = 0;
+  let total = this.base_price || 0;
 
   this.customized_itinerary.forEach(day => {
     if (!day.isRemoved) {

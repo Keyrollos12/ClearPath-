@@ -7,6 +7,8 @@ const paymentSchema = new mongoose.Schema({
   method: { type: String, enum: ["Credit Card", "PayPal", "Bank Transfer"], required: true },
   status: { type: String, enum: ["Pending", "Completed", "Failed"], default: "Pending" },
   payment_date: { type: Date, default: Date.now },
+  paypalOrderId: { type: String },
+  paypalCaptureId: { type: String },
 
 }, { timestamps: true });
 

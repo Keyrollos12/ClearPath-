@@ -22,6 +22,7 @@ class ActivityController {
 
       res.status(200).json({
         results: data.length,
+        page: req.query.page || 1,
         data,
       });
     } catch (err) {
@@ -40,9 +41,7 @@ class ActivityController {
         });
       }
 
-      res.status(200).json({
-        data,
-      });
+      res.status(200).json({ data });
     } catch (err) {
       next(err);
     }

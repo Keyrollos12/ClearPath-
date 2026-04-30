@@ -14,7 +14,7 @@ export const addActivitySchema = Joi.object({
   day_number: Joi.number().integer().positive().required(),
   activity: objectId.required(),
   provider: objectId.required(),
-  price: Joi.number().positive().required()
+ price: Joi.number().positive().required()
 });
 
 export const removeActivitySchema = Joi.object({

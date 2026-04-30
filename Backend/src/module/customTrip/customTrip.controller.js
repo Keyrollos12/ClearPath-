@@ -120,7 +120,7 @@ class CustomTripController {
         data,
       });
     } catch (err) {
-      next(err);
+     next(err);
     }
   };
 

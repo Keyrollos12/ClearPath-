@@ -7,8 +7,14 @@ import * as providerValidation from "./provider.validation.js";
 const router = Router();
 
 // Public routes
-router.get("/", isValid(providerValidation.providerQuerySchema), providerController.getAllProviders);
-router.get("/:id", isValid(providerValidation.idSchema, 'params'), providerController.getProvider);
+router.get(
+  "/",
+  authMiddleware,
+  allowTo("admin"),
+  isValid(providerValidation.providerQuerySchema),
+  providerController.getAllProviders
+);
+router.get("/:id", authMiddleware, allowTo("admin"), isValid(providerValidation.idSchema, 'params'), providerController.getProvider);
 
 // Admin only routes
 router.post("/", authMiddleware, allowTo("admin"), isValid(providerValidation.createProviderSchema), providerController.createProvider);

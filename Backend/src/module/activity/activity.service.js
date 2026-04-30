@@ -9,54 +9,71 @@ class ActivityService {
   // Validate Relations
   // =========================
   async validateRelations({ destination, provider }) {
-    let destinationId = destination;
-    let providerId = provider;
+  let destinationId = destination;
+  let providerId = provider;
 
-    // ===== Destination =====
-    if (destination && typeof destination === "object" && !Array.isArray(destination)) {
-      const existingDest = await Destination.findOne({
-        name: destination.name,
-      });
+  // helper function
+  const normalize = (obj, fields) => {
+    const result = {};
+    fields.forEach(field => {
+      result[field] = obj[field] ?? null;
+    });
+    return result;
+  };
 
-      if (existingDest) {
-        destinationId = existingDest._id;
-      } else {
-        const dest = await Destination.create(destination);
-        destinationId = dest._id;
-      }
-    } else if (destination) {
-      const exists = await Destination.exists({ _id: destination });
+  // ===== Destination =====
+  if (destination && typeof destination === "object" && !Array.isArray(destination)) {
 
-      if (!exists) {
-        throw new AppError.BadRequestException("Destination not found");
-      }
+    const destData = normalize(destination, ["name", "location", "description"]);
+
+    const existingDest = await Destination.findOne(destData);
+
+    if (existingDest) {
+      destinationId = existingDest._id;
+    } else {
+      const dest = await Destination.create(destData);
+      destinationId = dest._id;
     }
 
-    // ===== Provider =====
-    if (provider && typeof provider === "object" && !Array.isArray(provider)) {
-      const existingProv = await Provider.findOne({
-        $or: [
-          { email: provider.email },
-          { name: provider.name }
-        ]
-      });
+  } else if (destination) {
+    const exists = await Destination.exists({ _id: destination });
 
-      if (existingProv) {
-        providerId = existingProv._id;
-      } else {
-        const prov = await Provider.create(provider);
-        providerId = prov._id;
-      }
-    } else if (provider) {
-      const exists = await Provider.exists({ _id: provider });
-
-      if (!exists) {
-        throw new AppError.BadRequestException("Provider not found");
-      }
+    if (!exists) {
+      throw new AppError.BadRequestException("Destination not found");
     }
-
-    return { destinationId, providerId };
   }
+
+  // ===== Provider =====
+  if (provider && typeof provider === "object" && !Array.isArray(provider)) {
+
+    const provData = normalize(provider, [
+      "name",
+      "email",
+      "phone",
+      "type",
+      "address",
+      "description"
+    ]);
+
+    const existingProv = await Provider.findOne(provData);
+
+    if (existingProv) {
+      providerId = existingProv._id;
+    } else {
+      const prov = await Provider.create(provData);
+      providerId = prov._id;
+    }
+
+  } else if (provider) {
+    const exists = await Provider.exists({ _id: provider });
+
+    if (!exists) {
+      throw new AppError.BadRequestException("Provider not found");
+    }
+  }
+
+  return { destinationId, providerId };
+}
 
   // =========================
   // CREATE (with duplicate check)
@@ -73,11 +90,6 @@ class ActivityService {
       provider: providerId,
     });
 
-    if (existingActivity) {
-      throw new AppError.BadRequestException(
-        "Activity already exists"
-      );
-    }
 
     // ✅ Create
     return await Activity.create({
